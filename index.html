@@ -40,9 +40,9 @@
     const viewContainer = document.getElementById('view-container');
 
     // Utility function to switch views
-    function navigateTo(state) {
+    function navigateTo(state, data = null) {
         currentState = state;
-        renderView();
+        renderView(data);
     }
 
     // --- View Definitions ---
@@ -238,12 +238,19 @@
 
         // --- Step 6: Trigger Webhook and Wait ---
         updateProgress(6, 'Upload Complete. Triggering N8N Workflow via Webhook...');
+        
+        // --- FIX START: Safely extract folder name using optional chaining to prevent TypeError ---
+        // The error occurred because fileList[0] might be undefined, or webkitRelativePath might be missing.
+        const firstFile = fileList[0];
+        // Safely access properties, falling back to file name, then a default string.
+        const extractedFolderName = firstFile?.webkitRelativePath?.split('/')[0] || firstFile?.name || "RootFolder";
+        // --- FIX END ---
 
         const payload = {
             action: "new_folder_upload",
             mock_onedrive_folder_id: MOCK_ONEDRIVE_FOLDER_ID,
             webhook_trigger_time: new Date().toISOString(),
-            folder_name: fileList[0].webkitRelativePath.split('/')[0] || "RootFolder"
+            folder_name: extractedFolderName // Using the safely extracted folder name
         };
         
         try {
