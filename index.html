@@ -7,18 +7,38 @@
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom font */
+        /* Custom font and base styling */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        /* Apply smooth transition for theme changes */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7fafc;
+            /* Keep transition for smooth background color change */
+            transition: background-color 0.3s ease; 
+        }
+        /* Removed redundant CSS, relying on Tailwind classes on <body> */
+        #app-container {
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
         }
     </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Enable class-based dark mode
+        }
+    </script>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<!-- UPDATED: Using a deeper gray (950) for a better dark background effect -->
+<body class="min-h-screen flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-950">
 
-<div id="app-container" class="w-full max-w-lg bg-white shadow-xl rounded-xl p-8 transition-all duration-300">
-    <h1 class="text-3xl font-bold text-center text-indigo-700 mb-8">Data Ingestion Workflow</h1>
+<div id="app-container" class="w-full max-w-lg bg-white shadow-xl rounded-xl p-8 transition-all duration-300 dark:bg-gray-800 dark:text-gray-100 dark:shadow-2xl">
+    
+    <header class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-indigo-700 dark:text-indigo-400">Data Ingestion Workflow</h1>
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" onclick="toggleTheme()" class="p-2 rounded-full text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-150">
+            <!-- Icon will be set by JavaScript based on current theme -->
+        </button>
+    </header>
     
     <!-- Views Container -->
     <div id="view-container">
@@ -30,16 +50,45 @@
     // --- Configuration ---
     const WEBHOOK_URL = 'https://ai.senselive.io/webhook-test/senselive-invoice';
     const ONEDRIVE_SHARE_LINK = 'https://1drv.ms/f/c/64b8fe35e399d046/Ej53UcP07t5Bk7T27AH9Y2oBQX4wh31UZd7FeiEUIzxQdw?e=co8CgB';
-    
-    // NOTE: This MOCK ID is retained only for the 'Existing File' flow, as the 'New Folder' flow now uses the user-provided ID.
     const MOCK_EXISTING_FOLDER_ID = 'existing-folder-999'; 
 
     // --- State Management ---
     let currentState = 'home';
-    let fileList = []; // Kept for the 'Existing File' view, though not for folder upload anymore.
+    let currentTheme = 'light'; 
+    let fileList = []; 
 
     const appContainer = document.getElementById('app-container');
     const viewContainer = document.getElementById('view-container');
+    const body = document.body;
+
+    // --- Theme Logic ---
+    function toggleTheme() {
+        // Check if the body currently has the 'dark' class
+        const isDark = body.classList.contains('dark');
+        
+        if (isDark) {
+            body.classList.remove('dark');
+            currentTheme = 'light';
+        } else {
+            body.classList.add('dark');
+            currentTheme = 'dark';
+        }
+        updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+        const toggleButton = document.getElementById('theme-toggle');
+        if (!toggleButton) return;
+
+        // Moon icon for Light Mode (Click to switch to Dark)
+        const moonIcon = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>`;
+        
+        // Sun icon for Dark Mode (Click to switch to Light)
+        const sunIcon = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
+
+        toggleButton.innerHTML = body.classList.contains('dark') ? sunIcon : moonIcon;
+    }
+
 
     // Utility function to switch views
     function navigateTo(state, data = null) {
@@ -51,7 +100,7 @@
 
     function renderHomeView() {
         return `
-            <p class="text-center text-gray-600 mb-6">Select the type of action you wish to perform:</p>
+            <p class="text-center text-gray-600 dark:text-gray-400 mb-6">Select the type of action you wish to perform:</p>
             
             <div class="space-y-4">
                 <button onclick="navigateTo('new_folder')"
@@ -61,19 +110,19 @@
                 </button>
                 
                 <button onclick="navigateTo('existing_file')"
-                    class="w-full flex items-center justify-between p-4 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-300 transition duration-150 transform hover:scale-[1.01]">
+                    class="w-full flex items-center justify-between p-4 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-300 transition duration-150 transform hover:scale-[1.01] dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
                     <span class="text-left">Trigger for Existing Folder or New File</span>
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </button>
             </div>
-            <p class="mt-6 text-sm text-center text-gray-400">Target OneDrive Location: <a href="${ONEDRIVE_SHARE_LINK}" target="_blank" class="underline text-indigo-500">View Folder</a></p>
+            <p class="mt-6 text-sm text-center text-gray-400">Target OneDrive Location: <a href="${ONEDRIVE_SHARE_LINK}" target="_blank" class="underline text-indigo-500 dark:text-indigo-400">View Folder</a></p>
         `;
     }
 
     function renderNewFolderView() {
         return `
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800">New Folder Workflow</h2>
-            <p class="text-gray-600 mb-6">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">New Folder Workflow</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">
                 <strong>Step 1: Upload Manually.</strong> Click the button below to upload your folder to OneDrive.
             </p>
 
@@ -83,13 +132,13 @@
                 Go to OneDrive Folder Location (Opens in New Tab)
             </a>
 
-            <p class="text-gray-600 mb-2">
+            <p class="text-gray-600 dark:text-gray-400 mb-2">
                 <strong>Step 2: Trigger.</strong> Paste the **new Folder ID** (from the OneDrive URL) here to start the N8N workflow.
             </p>
             <div class="mb-6">
                 <label for="onedrive-folder-id" class="sr-only">OneDrive Folder ID</label>
                 <input type="text" id="onedrive-folder-id" placeholder="Paste the new OneDrive Folder ID here..."
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                     oninput="handleIdInput(event)">
             </div>
 
@@ -97,7 +146,7 @@
                 class="w-full p-3 bg-gray-400 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 transition duration-150">
                 Trigger N8N Workflow with ID
             </button>
-            <button onclick="navigateTo('home')" class="w-full mt-3 p-3 text-gray-500 hover:text-gray-700 transition duration-150">← Back</button>
+            <button onclick="navigateTo('home')" class="w-full mt-3 p-3 text-gray-500 hover:text-gray-700 transition duration-150 dark:text-gray-400 dark:hover:text-gray-300">← Back</button>
         `;
     }
     
@@ -121,29 +170,39 @@
     function renderLoadingView() {
         return `
             <div class="text-center p-6">
-                <h2 id="loading-title" class="text-2xl font-semibold mb-4 text-indigo-700">Starting Workflow...</h2>
+                <h2 id="loading-title" class="text-2xl font-semibold mb-4 text-indigo-700 dark:text-indigo-400">Starting Workflow...</h2>
                 <div class="flex items-center justify-center space-x-2 mb-6">
                     <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
                 </div>
                 
-                <div class="w-full bg-gray-200 rounded-full h-4">
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
                     <div id="progress-bar" class="bg-indigo-500 h-4 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
                 </div>
-                <p id="progress-text" class="mt-3 text-lg font-medium text-indigo-600">0%</p>
-                <p id="status-message" class="mt-4 text-gray-500 text-sm italic">Initializing N8N process...</p>
+                <p id="progress-text" class="mt-3 text-lg font-medium text-indigo-600 dark:text-indigo-400">0%</p>
+                <p id="status-message" class="mt-4 text-gray-500 dark:text-gray-400 text-sm italic">Initializing N8N process...</p>
             </div>
         `;
     }
 
     function renderCompletionView(message) {
-        let isSuccess = message === "Workflow Completed";
+        // FIX RETAINED: Normalize the incoming message to handle common issues like whitespace or case mismatch.
+        const normalizedMessage = message ? message.trim().toLowerCase() : '';
+        const expectedSuccess = "workflow completed".toLowerCase();
+        
+        let isSuccess = normalizedMessage === expectedSuccess;
+
         return `
             <div class="text-center p-6">
-                <div class="${isSuccess ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} p-4 rounded-lg">
-                    <svg class="mx-auto h-12 w-12 ${isSuccess ? 'text-green-500' : 'text-red-500'} mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isSuccess ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'}"></path></svg>
+                <div class="${isSuccess ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'} p-4 rounded-lg">
+                    <svg class="mx-auto h-12 w-12 ${isSuccess ? 'text-green-500' : 'text-red-500'} mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isSuccess 
+                            ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' // Green Checkmark
+                            : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z' // Red Cross
+                        }"></path>
+                    </svg>
                     <h2 class="text-2xl font-semibold mb-2">${message}</h2>
                 </div>
-                <p class="mt-4 text-gray-600">The N8N process has finished for the provided folder ID.</p>
+                <p class="mt-4 text-gray-600 dark:text-gray-400">The N8N process has finished for the provided folder ID.</p>
                 <button onclick="navigateTo('home')" class="mt-6 w-full p-3 bg-indigo-500 text-white font-semibold rounded-lg hover:bg-indigo-600 transition duration-150">Start New Workflow</button>
             </div>
         `;
@@ -151,22 +210,22 @@
     
     function renderExistingFileView() {
         return `
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Existing Folder / New File Workflow</h2>
-            <p class="text-gray-600 mb-6">This workflow is for processing files within an existing, known structure, or for a single new file.</p>
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Existing Folder / New File Workflow</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">This workflow is for processing files within an existing, known structure, or for a single new file.</p>
             
             <div class="space-y-4">
-                <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200 text-sm text-yellow-800">
+                <div class="p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg border border-yellow-200 dark:border-yellow-700 text-sm text-yellow-800 dark:text-yellow-300">
                     <strong>Note:</strong> File/Folder selection is for display only. This button sends a mock trigger using ID: 
-                    <span class="font-mono text-xs text-yellow-900">${MOCK_EXISTING_FOLDER_ID}</span>
+                    <span class="font-mono text-xs text-yellow-900 dark:text-yellow-200">${MOCK_EXISTING_FOLDER_ID}</span>
                 </div>
 
-                <label for="file-upload" class="block mb-4 p-4 border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer hover:bg-gray-100 transition duration-150">
+                <label for="file-upload" class="block mb-4 p-4 border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer hover:bg-gray-100 transition duration-150 dark:border-gray-600 dark:hover:bg-gray-700">
                     <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <span class="mt-2 block text-sm font-medium text-gray-600">Click to select single file...</span>
+                    <span class="mt-2 block text-sm font-medium text-gray-600 dark:text-gray-300">Click to select single file...</span>
                     <input type="file" id="file-upload" class="hidden" onchange="handleFileSelect(event)">
                 </label>
 
-                <p id="selected-file-name" class="text-center text-sm text-gray-500">No file selected.</p>
+                <p id="selected-file-name" class="text-center text-sm text-gray-500 dark:text-gray-400">No file selected.</p>
 
                 <button id="trigger-file-button" onclick="triggerExistingFileWorkflow()" disabled
                     class="w-full p-3 bg-gray-400 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 hover:bg-gray-500 transition duration-150">
@@ -174,23 +233,12 @@
                 </button>
             </div>
 
-            <button onclick="navigateTo('home')" class="w-full mt-4 p-3 text-gray-500 hover:text-gray-700 transition duration-150">← Back</button>
+            <button onclick="navigateTo('home')" class="w-full mt-4 p-3 text-gray-500 hover:text-gray-700 transition duration-150 dark:text-gray-400 dark:hover:text-gray-300">← Back</button>
         `;
     }
 
 
     // --- Controller Logic ---
-
-    // Note: handleFolderSelect is no longer used, but kept for completeness in the file context.
-    function handleFolderSelect(event) {
-        // This function is obsolete in the new workflow but included for robust JavaScript.
-        const files = event.target.files;
-        fileList = Array.from(files);
-        
-        // This code path is deprecated/hidden by the new UI, but logic is simplified:
-        const button = document.getElementById('trigger-button');
-        button.disabled = files.length === 0;
-    }
 
     function handleFileSelect(event) {
         const file = event.target.files[0];
@@ -215,7 +263,6 @@
 
     /**
      * Triggers the N8N webhook with the user-provided OneDrive Folder ID.
-     * The progress bar now simulates the N8N processing time.
      */
     async function triggerNewFolderWorkflow() {
         const folderIdInput = document.getElementById('onedrive-folder-id');
@@ -373,6 +420,7 @@
                 content = renderHomeView();
         }
         viewContainer.innerHTML = content;
+        updateThemeIcon(); // Ensure the theme icon is correct after rendering
 
         // Reset file list on view change
         if (currentState !== 'new_folder' && currentState !== 'existing_file') {
@@ -382,6 +430,8 @@
 
     // Initialize the application on load
     document.addEventListener('DOMContentLoaded', () => {
+        // Use a persistent class check to decide the initial theme
+        currentTheme = body.classList.contains('dark') ? 'dark' : 'light'; 
         renderView();
     });
 
