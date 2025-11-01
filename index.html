@@ -3,438 +3,406 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OneDrive Workflow Trigger</title>
-    <!-- Load Tailwind CSS -->
+    <title>SenseLive Web Automation Trigger System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Custom font and base styling */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        
-        /* Apply smooth transition for theme changes */
-        body {
-            font-family: 'Inter', sans-serif;
-            /* Keep transition for smooth background color change */
-            transition: background-color 0.3s ease; 
-        }
-        /* Removed redundant CSS, relying on Tailwind classes on <body> */
-        #app-container {
-            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-        }
-    </style>
     <script>
-        tailwind.config = {
-            darkMode: 'class', // Enable class-based dark mode
+        // --- Tailwind Configuration and Theme Initialization (Same as original) ---
+        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'teal-600': '#047878', 'cyan-400': '#22D3EE', } } } };
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
         }
     </script>
+    <style>
+        .transition-all-enhanced { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* Style for the logo (placeholder image, no local assets allowed) */
+        .logo-placeholder {
+            width: 48px; height: 48px; background-color: #047878; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+        }
+    </style>
 </head>
-<!-- UPDATED: Using a deeper gray (950) for a better dark background effect -->
-<body class="min-h-screen flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-950">
+<body class="bg-gray-100 dark:bg-slate-900 min-h-screen font-sans transition-colors duration-300">
 
-<div id="app-container" class="w-full max-w-lg bg-white shadow-xl rounded-xl p-8 transition-all duration-300 dark:bg-gray-800 dark:text-gray-100 dark:shadow-2xl">
-    
-    <header class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-indigo-700 dark:text-indigo-400">Data Ingestion Workflow</h1>
+    <!-- Global Constants -->
+    <script>
+        const LOGIN_USERNAME = 'Test';
+        const LOGIN_PASSWORD = 'Test@123';
+        const WEBHOOK_URL = 'https://ai.senselive.io/webhook-test/senselive-invoice';
+        const ONEDRIVE_FOLDER_URL = 'https://1drv.ms/f/c/64b8fe35e399d046/Ej53UcP07t5Bk7T27AH9Y2oBQX4wh31UZd7FeiEUIzxQdw?e=C1YHhn';
+        const ONEDRIVE_EXCEL_URL = 'https://1drv.ms/x/c/64b8fe35e399d046/EUbQmeM1_rgggGQzAQAAAAABPv-f40ZWbuIW01tyXaD11A?e=fEMe93';
+    </script>
+
+    <!-- 1. LOGIN PAGE -->
+    <div id="login-page" class="min-h-screen flex flex-col items-center justify-center p-4">
         <!-- Theme Toggle Button -->
-        <button id="theme-toggle" onclick="toggleTheme()" class="p-2 rounded-full text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-150">
-            <!-- Icon will be set by JavaScript based on current theme -->
+        <button data-js="theme-toggle" type="button" class="absolute top-4 right-4 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none rounded-lg text-sm p-2.5">
+            <svg data-js="theme-icon-dark" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg data-js="theme-icon-light" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.706-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.708.707zm-.708 11.293a1 1 0 010-1.414l.708-.707a1 1 0 111.414 1.414l-.708.707a1 1 0 01-1.414 0zM19 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1z"></path></svg>
         </button>
-    </header>
-    
-    <!-- Views Container -->
-    <div id="view-container">
-        <!-- Content will be injected here by JavaScript -->
+        <div class="max-w-md w-full mx-auto">
+            <div class="text-center mb-8">
+                <!-- Simple logo placeholder -->
+                <div class="logo-placeholder mx-auto mb-6">
+                    <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                </div>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500 drop-shadow-sm tracking-tight">Automation System</h1>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mt-4">Welcome Back</h2>
+                <p class="text-md text-gray-500 dark:text-gray-400 mt-2">Please login with your credentials.</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700">
+                <form id="loginForm" class="space-y-6">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+                        <input id="username" type="text" required class="mt-1 w-full p-3 border bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-gray-100 rounded-md focus:ring-cyan-500 focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                        <div class="mt-1 relative">
+                            <input id="password" type="password" required class="w-full p-3 pr-10 border bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-gray-100 rounded-md focus:ring-cyan-500 focus:border-cyan-500">
+                            <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
+                                <svg id="eyeIcon" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                <svg id="eyeOffIcon" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243L6.228 6.228" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p id="loginError" class="text-sm text-red-500 hidden">Invalid username or password.</p>
+                    <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-lg font-bold text-white bg-teal-600 hover:bg-teal-700 transition-all duration-300">Login</button>
+                </form>
+            </div>
+        </div>
     </div>
-</div>
 
-<script>
-    // --- Configuration ---
-    const WEBHOOK_URL = 'https://ai.senselive.io/webhook-test/senselive-invoice';
-    const ONEDRIVE_SHARE_LINK = 'https://1drv.ms/f/c/64b8fe35e399d046/Ej53UcP07t5Bk7T27AH9Y2oBQX4wh31UZd7FeiEUIzxQdw?e=co8CgB';
-    const MOCK_EXISTING_FOLDER_ID = 'existing-folder-999'; 
+    <!-- 2. LANDING PAGE -->
+    <div id="landing-page" class="hidden min-h-screen w-full flex flex-col items-center justify-center p-4">
+        <header class="w-full max-w-5xl mx-auto absolute top-0 left-0 right-0 px-4 py-5">
+            <div class="flex justify-between items-center">
+                <!-- Simple logo placeholder -->
+                <div class="logo-placeholder h-10 w-10 sm:h-12 sm:w-12">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button data-js="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none rounded-lg text-sm p-2.5">
+                        <svg data-js="theme-icon-dark" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg data-js="theme-icon-light" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.706-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.708.707zm-.708 11.293a1 1 0 010-1.414l.708-.707a1 1 0 111.414 1.414l-.708.707a1 1 0 01-1.414 0zM19 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1z"></path></svg>
+                    </button>
+                    <button data-js="logout" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none rounded-lg text-sm p-2.5">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <main class="text-center">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-800 dark:text-gray-200 mb-4">Welcome to SenseLive Automation</h1>
+            <p class="text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-12">Select the workflow trigger type.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+                <a href="#folder" data-js="navigate" class="block p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                    <h2 class="text-2xl font-bold text-teal-600 dark:text-cyan-400 mb-2">Trigger for New Folder</h2>
+                    <p class="text-gray-500 dark:text-gray-400">Process all files within a shared OneDrive folder URL.</p>
+                </a>
+                <a href="#file" data-js="navigate" class="block p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                    <h2 class="text-2xl font-bold text-teal-600 dark:text-cyan-400 mb-2">Trigger for New File</h2>
+                    <p class="text-gray-500 dark:text-gray-400">Process a single shared OneDrive file URL (on existing folder).</p>
+                </a>
+            </div>
+        </main>
+    </div>
 
-    // --- State Management ---
-    let currentState = 'home';
-    let currentTheme = 'light'; 
-    let fileList = []; 
-
-    const appContainer = document.getElementById('app-container');
-    const viewContainer = document.getElementById('view-container');
-    const body = document.body;
-
-    // --- Theme Logic ---
-    function toggleTheme() {
-        // Check if the body currently has the 'dark' class
-        const isDark = body.classList.contains('dark');
-        
-        if (isDark) {
-            body.classList.remove('dark');
-            currentTheme = 'light';
-        } else {
-            body.classList.add('dark');
-            currentTheme = 'dark';
-        }
-        updateThemeIcon();
-    }
-
-    function updateThemeIcon() {
-        const toggleButton = document.getElementById('theme-toggle');
-        if (!toggleButton) return;
-
-        // Moon icon for Light Mode (Click to switch to Dark)
-        const moonIcon = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>`;
-        
-        // Sun icon for Dark Mode (Click to switch to Light)
-        const sunIcon = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
-
-        toggleButton.innerHTML = body.classList.contains('dark') ? sunIcon : moonIcon;
-    }
-
-
-    // Utility function to switch views
-    function navigateTo(state, data = null) {
-        currentState = state;
-        renderView(data);
-    }
-
-    // --- View Definitions ---
-
-    function renderHomeView() {
-        return `
-            <p class="text-center text-gray-600 dark:text-gray-400 mb-6">Select the type of action you wish to perform:</p>
-            
-            <div class="space-y-4">
-                <button onclick="navigateTo('new_folder')"
-                    class="w-full flex items-center justify-between p-4 bg-indigo-500 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-600 transition duration-150 transform hover:scale-[1.01]">
-                    <span class="text-left">Trigger for New Folder</span>
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+    <!-- 3. FOLDER TRIGGER PAGE -->
+    <div id="folder-page" class="hidden min-h-screen w-full flex items-center justify-center p-4 sm:p-6">
+        <div class="max-w-xl w-full mx-auto bg-white dark:bg-slate-800 p-6 sm:p-10 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700">
+            <header class="flex justify-between items-center mb-10">
+                <a href="#landing" data-js="navigate" class="text-sm font-medium text-teal-600 dark:text-cyan-400 hover:underline flex items-center">
+                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                    Back to Main Menu
+                </a>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Folder Trigger</h1>
+                <button data-js="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none rounded-lg text-sm p-2.5">
+                    <svg data-js="theme-icon-dark" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                    <svg data-js="theme-icon-light" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.706-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.708.707zm-.708 11.293a1 1 0 010-1.414l.708-.707a1 1 0 111.414 1.414l-.708.707a1 1 0 01-1.414 0zM19 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1z"></path></svg>
                 </button>
+            </header>
+
+            <div id="folder-step-1" class="mb-8 p-4 bg-gray-50 dark:bg-slate-700/50 rounded-lg border dark:border-slate-700">
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">STEP 1: Upload Folder</p>
+                <a id="folderOneDriveLink" target="_blank" class="w-full inline-flex justify-center items-center py-3 px-4 rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-all-enhanced font-bold text-center">
+                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+                    Upload your folder on OneDrive
+                </a>
+            </div>
+
+            <div id="folder-step-2">
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">STEP 2: Enter Sharable Folder URL</p>
+                <input type="url" id="folderUrlInput" placeholder="Paste OneDrive Sharable Folder URL here..." class="w-full p-3 border bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-gray-100 rounded-md focus:ring-cyan-500 focus:border-cyan-500 mb-6">
                 
-                <button onclick="navigateTo('existing_file')"
-                    class="w-full flex items-center justify-between p-4 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-300 transition duration-150 transform hover:scale-[1.01] dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
-                    <span class="text-left">Trigger for Existing Folder or New File</span>
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <button id="folderTriggerBtn" type="button" onclick="triggerWorkflow('folder')" disabled class="w-full inline-flex justify-center items-center px-8 py-3 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-teal-600 hover:bg-teal-700 transition-all-enhanced disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span class="btn-text">Trigger Folder Workflow</span>
+                    <span class="btn-spinner hidden ml-2"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>
                 </button>
             </div>
-            <p class="mt-6 text-sm text-center text-gray-400">Target OneDrive Location: <a href="${ONEDRIVE_SHARE_LINK}" target="_blank" class="underline text-indigo-500 dark:text-indigo-400">View Folder</a></p>
-        `;
-    }
 
-    function renderNewFolderView() {
-        return `
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">New Folder Workflow</h2>
-            <p class="text-gray-600 dark:text-gray-400 mb-6">
-                <strong>Step 1: Upload Manually.</strong> Click the button below to upload your folder to OneDrive.
-            </p>
+            <!-- Loading/Result Section -->
+            <div id="folder-progress-section" class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 hidden">
+                <div id="folder-progress-bar-container" class="mb-4">
+                    <p id="folder-progress-label" class="text-center text-gray-700 dark:text-gray-300 mb-2 text-lg font-medium">Processing... 0%</p>
+                    <div class="w-full bg-gray-200 rounded-full dark:bg-gray-700 h-2.5">
+                        <div id="folder-progress-bar" class="bg-teal-600 h-2.5 rounded-full transition-all-enhanced" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div id="folder-result-message" class="text-center p-4 rounded-lg bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 text-base font-semibold" style="display: none;">
+                    <p class="mb-2">Workflow Completed Successfully!</p>
+                    <p class="text-sm">Entry saved here: <a id="folderExcelLink" target="_blank" class="text-blue-600 dark:text-cyan-400 hover:underline font-bold">Open Excel Spreadsheet</a></p>
+                    <button type="button" onclick="initializePage('folder')" class="mt-4 text-sm font-medium text-teal-600 dark:text-cyan-400 hover:underline">Start New Trigger</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <a href="${ONEDRIVE_SHARE_LINK}" target="_blank"
-                class="w-full flex items-center justify-center p-4 bg-indigo-500 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-600 transition duration-150 transform hover:scale-[1.01] mb-6">
-                <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                Go to OneDrive Folder Location (Opens in New Tab)
-            </a>
+    <!-- 4. FILE TRIGGER PAGE -->
+    <div id="file-page" class="hidden min-h-screen w-full flex items-center justify-center p-4 sm:p-6">
+        <div class="max-w-xl w-full mx-auto bg-white dark:bg-slate-800 p-6 sm:p-10 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700">
+            <header class="flex justify-between items-center mb-10">
+                <a href="#landing" data-js="navigate" class="text-sm font-medium text-teal-600 dark:text-cyan-400 hover:underline flex items-center">
+                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                    Back to Main Menu
+                </a>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">File Trigger</h1>
+                <button data-js="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none rounded-lg text-sm p-2.5">
+                    <svg data-js="theme-icon-dark" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                    <svg data-js="theme-icon-light" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.706-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.708.707zm-.708 11.293a1 1 0 010-1.414l.708-.707a1 1 0 111.414 1.414l-.708.707a1 1 0 01-1.414 0zM19 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1z"></path></svg>
+                </button>
+            </header>
 
-            <p class="text-gray-600 dark:text-gray-400 mb-2">
-                <strong>Step 2: Trigger.</strong> Paste the **new Folder ID** (from the OneDrive URL) here to start the N8N workflow.
-            </p>
-            <div class="mb-6">
-                <label for="onedrive-folder-id" class="sr-only">OneDrive Folder ID</label>
-                <input type="text" id="onedrive-folder-id" placeholder="Paste the new OneDrive Folder ID here..."
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
-                    oninput="handleIdInput(event)">
+            <div id="file-step-1" class="mb-8 p-4 bg-gray-50 dark:bg-slate-700/50 rounded-lg border dark:border-slate-700">
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">STEP 1: Upload File</p>
+                <a id="fileOneDriveLink" target="_blank" class="w-full inline-flex justify-center items-center py-3 px-4 rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-all-enhanced font-bold text-center">
+                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                    Upload your file on OneDrive
+                </a>
             </div>
 
-            <button id="trigger-button" onclick="triggerNewFolderWorkflow()" disabled
-                class="w-full p-3 bg-gray-400 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 transition duration-150">
-                Trigger N8N Workflow with ID
-            </button>
-            <button onclick="navigateTo('home')" class="w-full mt-3 p-3 text-gray-500 hover:text-gray-700 transition duration-150 dark:text-gray-400 dark:hover:text-gray-300">← Back</button>
-        `;
-    }
-    
-    function handleIdInput(event) {
-        const input = event.target;
-        const button = document.getElementById('trigger-button');
-        
-        // Simple check: ID must be long enough to be an actual OneDrive item ID.
-        if (input.value.trim().length > 10) { 
-            button.disabled = false;
-            button.classList.remove('bg-gray-400');
-            button.classList.add('bg-indigo-500', 'hover:bg-indigo-600');
-        } else {
-            button.disabled = true;
-            button.classList.remove('bg-indigo-500', 'hover:bg-indigo-600');
-            button.classList.add('bg-gray-400');
-        }
-    }
-
-
-    function renderLoadingView() {
-        return `
-            <div class="text-center p-6">
-                <h2 id="loading-title" class="text-2xl font-semibold mb-4 text-indigo-700 dark:text-indigo-400">Starting Workflow...</h2>
-                <div class="flex items-center justify-center space-x-2 mb-6">
-                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
-                </div>
+            <div id="file-step-2">
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">STEP 2: Enter Sharable File URL</p>
+                <input type="url" id="fileUrlInput" placeholder="Paste OneDrive Sharable File URL here..." class="w-full p-3 border bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-gray-100 rounded-md focus:ring-cyan-500 focus:border-cyan-500 mb-6">
                 
-                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
-                    <div id="progress-bar" class="bg-indigo-500 h-4 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
-                </div>
-                <p id="progress-text" class="mt-3 text-lg font-medium text-indigo-600 dark:text-indigo-400">0%</p>
-                <p id="status-message" class="mt-4 text-gray-500 dark:text-gray-400 text-sm italic">Initializing N8N process...</p>
-            </div>
-        `;
-    }
-
-    function renderCompletionView(message) {
-        // FIX RETAINED: Normalize the incoming message to handle common issues like whitespace or case mismatch.
-        const normalizedMessage = message ? message.trim().toLowerCase() : '';
-        const expectedSuccess = "workflow completed".toLowerCase();
-        
-        let isSuccess = normalizedMessage === expectedSuccess;
-
-        return `
-            <div class="text-center p-6">
-                <div class="${isSuccess ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'} p-4 rounded-lg">
-                    <svg class="mx-auto h-12 w-12 ${isSuccess ? 'text-green-500' : 'text-red-500'} mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isSuccess 
-                            ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' // Green Checkmark
-                            : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z' // Red Cross
-                        }"></path>
-                    </svg>
-                    <h2 class="text-2xl font-semibold mb-2">${message}</h2>
-                </div>
-                <p class="mt-4 text-gray-600 dark:text-gray-400">The N8N process has finished for the provided folder ID.</p>
-                <button onclick="navigateTo('home')" class="mt-6 w-full p-3 bg-indigo-500 text-white font-semibold rounded-lg hover:bg-indigo-600 transition duration-150">Start New Workflow</button>
-            </div>
-        `;
-    }
-    
-    function renderExistingFileView() {
-        return `
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Existing Folder / New File Workflow</h2>
-            <p class="text-gray-600 dark:text-gray-400 mb-6">This workflow is for processing files within an existing, known structure, or for a single new file.</p>
-            
-            <div class="space-y-4">
-                <div class="p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg border border-yellow-200 dark:border-yellow-700 text-sm text-yellow-800 dark:text-yellow-300">
-                    <strong>Note:</strong> File/Folder selection is for display only. This button sends a mock trigger using ID: 
-                    <span class="font-mono text-xs text-yellow-900 dark:text-yellow-200">${MOCK_EXISTING_FOLDER_ID}</span>
-                </div>
-
-                <label for="file-upload" class="block mb-4 p-4 border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer hover:bg-gray-100 transition duration-150 dark:border-gray-600 dark:hover:bg-gray-700">
-                    <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <span class="mt-2 block text-sm font-medium text-gray-600 dark:text-gray-300">Click to select single file...</span>
-                    <input type="file" id="file-upload" class="hidden" onchange="handleFileSelect(event)">
-                </label>
-
-                <p id="selected-file-name" class="text-center text-sm text-gray-500 dark:text-gray-400">No file selected.</p>
-
-                <button id="trigger-file-button" onclick="triggerExistingFileWorkflow()" disabled
-                    class="w-full p-3 bg-gray-400 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 hover:bg-gray-500 transition duration-150">
-                    Trigger N8N File Workflow
+                <button id="fileTriggerBtn" type="button" onclick="triggerWorkflow('file')" disabled class="w-full inline-flex justify-center items-center px-8 py-3 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-teal-600 hover:bg-teal-700 transition-all-enhanced disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span class="btn-text">Trigger File Workflow</span>
+                    <span class="btn-spinner hidden ml-2"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>
                 </button>
             </div>
 
-            <button onclick="navigateTo('home')" class="w-full mt-4 p-3 text-gray-500 hover:text-gray-700 transition duration-150 dark:text-gray-400 dark:hover:text-gray-300">← Back</button>
-        `;
-    }
+            <!-- Loading/Result Section -->
+            <div id="file-progress-section" class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 hidden">
+                <div id="file-progress-bar-container" class="mb-4">
+                    <p id="file-progress-label" class="text-center text-gray-700 dark:text-gray-300 mb-2 text-lg font-medium">Processing... 0%</p>
+                    <div class="w-full bg-gray-200 rounded-full dark:bg-gray-700 h-2.5">
+                        <div id="file-progress-bar" class="bg-teal-600 h-2.5 rounded-full transition-all-enhanced" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div id="file-result-message" class="text-center p-4 rounded-lg bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 text-base font-semibold" style="display: none;">
+                    <p class="mb-2">Workflow Completed Successfully!</p>
+                    <p class="text-sm">Entry saved here: <a id="fileExcelLink" target="_blank" class="text-blue-600 dark:text-cyan-400 hover:underline font-bold">Open Excel Spreadsheet</a></p>
+                    <button type="button" onclick="initializePage('file')" class="mt-4 text-sm font-medium text-teal-600 dark:text-cyan-400 hover:underline">Start New Trigger</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-
-    // --- Controller Logic ---
-
-    function handleFileSelect(event) {
-        const file = event.target.files[0];
-        const nameDisplay = document.getElementById('selected-file-name');
-        const button = document.getElementById('trigger-file-button');
-
-        if (file) {
-            nameDisplay.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-            fileList = [file];
-            button.disabled = false;
-            button.classList.remove('bg-gray-400', 'hover:bg-gray-500');
-            button.classList.add('bg-indigo-500', 'hover:bg-indigo-600');
-        } else {
-            nameDisplay.textContent = 'No file selected.';
-            fileList = [];
-            button.disabled = true;
-            button.classList.add('bg-gray-400', 'hover:bg-gray-500');
-            button.classList.remove('bg-indigo-500', 'hover:bg-indigo-600');
+    <!-- MAIN SCRIPT -->
+    <script>
+        const pageContainerIds = ['login-page', 'landing-page', 'folder-page', 'file-page']; 
+        
+        function showPage(pageIdToShow) {
+            pageContainerIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            const pageElement = document.getElementById(pageIdToShow);
+            if (pageElement) {
+                pageElement.classList.remove('hidden');
+                // Initialize new page state
+                if (pageIdToShow === 'folder-page') initializePage('folder');
+                if (pageIdToShow === 'file-page') initializePage('file');
+            }
         }
-    }
-
-
-    /**
-     * Triggers the N8N webhook with the user-provided OneDrive Folder ID.
-     */
-    async function triggerNewFolderWorkflow() {
-        const folderIdInput = document.getElementById('onedrive-folder-id');
-        const actualFolderId = folderIdInput.value.trim();
-
-        if (!actualFolderId) return;
         
-        navigateTo('loading');
-        
-        const progressBar = document.getElementById('progress-bar');
-        const progressText = document.getElementById('progress-text');
-        const statusMessage = document.getElementById('status-message');
-        const totalSteps = 10;
-        let currentStep = 0;
-
-        const updateProgress = (step, message) => {
-            currentStep = step;
-            const percentage = Math.round((currentStep / totalSteps) * 100);
-            progressBar.style.width = `${percentage}%`;
-            progressText.textContent = `${percentage}%`;
-            statusMessage.textContent = message;
-        };
-
-        // --- Step 1-5: Simulate N8N fetching and starting processing ---
-        for (let i = 1; i <= 5; i++) {
-            updateProgress(i, `N8N Workflow is fetching data and starting analysis (Step ${i}/5)...`);
-            await new Promise(resolve => setTimeout(resolve, 500)); 
+        function updateThemeUI() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const allDarkIcons = document.querySelectorAll('[data-js="theme-icon-dark"]');
+            const allLightIcons = document.querySelectorAll('[data-js="theme-icon-light"]');
+            
+            allDarkIcons.forEach(icon => isDark ? icon.classList.add('hidden') : icon.classList.remove('hidden'));
+            allLightIcons.forEach(icon => isDark ? icon.classList.remove('hidden') : icon.classList.add('hidden'));
         }
 
-        // --- Step 6: Trigger Webhook ---
-        updateProgress(6, `N8N processing initiated. Sending trigger payload...`);
-
-        const payload = {
-            action: "new_folder_trigger_by_id",
-            onedrive_folder_id: actualFolderId, // Use the ID provided by the user
-            webhook_trigger_time: new Date().toISOString(),
-        };
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            const eyeOffIcon = document.getElementById('eyeOffIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text'; eyeIcon.classList.add('hidden'); eyeOffIcon.classList.remove('hidden');
+            } else {
+                passwordInput.type = 'password'; eyeIcon.classList.remove('hidden'); eyeOffIcon.classList.add('hidden');
+            }
+        }
         
-        try {
-            const response = await fetch(WEBHOOK_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('loginError');
+            
+            if (username === LOGIN_USERNAME && password === LOGIN_PASSWORD) {
+                sessionStorage.setItem('isLoggedIn', 'true'); 
+                errorEl.classList.add('hidden'); 
+                showPage('landing-page');
+            } else {
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() { 
+            sessionStorage.removeItem('isLoggedIn'); 
+            showPage('login-page'); 
+        }
+
+        function initializePage(type) {
+            const urlInput = document.getElementById(`${type}UrlInput`);
+            const triggerBtn = document.getElementById(`${type}TriggerBtn`);
+            const onedriveLink = document.getElementById(`${type}OneDriveLink`);
+            const excelLink = document.getElementById(`${type}ExcelLink`);
+            const progressSection = document.getElementById(`${type}progress-section`);
+            const resultMessage = document.getElementById(`${type}result-message`);
+            
+            // Reset form elements
+            urlInput.value = '';
+            triggerBtn.disabled = true;
+            progressSection.classList.add('hidden');
+            resultMessage.style.display = 'none';
+            
+            // Set required URLs
+            onedriveLink.href = ONEDRIVE_FOLDER_URL;
+            excelLink.href = ONEDRIVE_EXCEL_URL;
+
+            // Add input listener
+            urlInput.oninput = () => {
+                // Simple validation for URL format
+                triggerBtn.disabled = urlInput.value.trim().length < 5 || !urlInput.value.includes('http');
+            };
+        }
+        
+        async function triggerWorkflow(actionType) {
+            const type = actionType === 'folder' ? 'folder' : 'file';
+            const urlInput = document.getElementById(`${type}UrlInput`);
+            const triggerBtn = document.getElementById(`${type}TriggerBtn`);
+            const progressSection = document.getElementById(`${type}progress-section`);
+            const progressBar = document.getElementById(`${type}progress-bar`);
+            const progressLabel = document.getElementById(`${type}progress-label`);
+            const resultMessage = document.getElementById(`${type}result-message`);
+
+            const sharedUrl = urlInput.value.trim();
+
+            if (!sharedUrl) return alert('Please enter a valid OneDrive Sharable URL.');
+
+            // 1. Start UI transition
+            triggerBtn.disabled = true;
+            triggerBtn.querySelector('.btn-text').textContent = 'Triggering...';
+            triggerBtn.querySelector('.btn-spinner').classList.remove('hidden');
+            progressSection.classList.remove('hidden');
+            resultMessage.style.display = 'none';
+
+            // 2. Simulate Loading Progress (0% to 90%)
+            let currentProgress = 0;
+            const interval = setInterval(() => {
+                if (currentProgress < 90) {
+                    currentProgress += 5; // Increment by 5% every 150ms
+                    progressBar.style.width = `${currentProgress}%`;
+                    progressLabel.textContent = `Processing... ${currentProgress}%`;
+                }
+            }, 150);
+
+
+            // 3. Prepare Payload and Call Webhook
+            const payload = {
+                action: actionType, // 'folder' or 'file'
+                url: sharedUrl
+            };
+            
+            try {
+                const res = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                clearInterval(interval); // Stop the simulation
+                
+                if (res.ok) {
+                    // Assuming N8N returns "Workflow Completed" text based on the image
+                    const textResponse = await res.text(); 
+                    
+                    // 4. Final Success State (100% and message)
+                    progressBar.style.width = '100%';
+                    progressLabel.textContent = `Workflow Completed! 100%`;
+                    
+                    setTimeout(() => {
+                        resultMessage.style.display = 'block';
+                        progressSection.classList.add('bg-green-50', 'dark:bg-green-900/10'); // Highlight success
+                    }, 500);
+
+                } else {
+                    // Handle non-200 responses
+                    throw new Error(`Workflow failed: Server returned ${res.status}`);
+                }
+            } catch (error) {
+                console.error("Error triggering workflow:", error);
+                clearInterval(interval); // Ensure interval stops on error
+                
+                // Show Error Message instead of success message box
+                progressLabel.textContent = `Error: ${error.message}`;
+                progressBar.style.width = '100%';
+                progressBar.classList.remove('bg-teal-600');
+                progressBar.classList.add('bg-red-600');
+                
+                alert(`Error: ${error.message}. Please check the URL and try again.`);
+
+            } finally {
+                // Reset button after process ends (success or failure)
+                triggerBtn.querySelector('.btn-text').textContent = actionType === 'folder' ? 'Trigger Folder Workflow' : 'Trigger File Workflow';
+                triggerBtn.querySelector('.btn-spinner').classList.add('hidden');
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Theme Toggle Setup ---
+            const allThemeToggles = document.querySelectorAll('[data-js="theme-toggle"]');
+            allThemeToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    document.documentElement.classList.toggle('dark');
+                    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+                    updateThemeUI();
+                });
             });
 
-            if (!response.ok) {
-                // Read response text for better error message if available
-                const errorText = await response.text();
-                throw new Error(`HTTP error! Status: ${response.status}. Response: ${errorText.substring(0, 100)}...`);
-            }
-
-            const responseText = await response.text();
+            // --- Navigation and Auth Setup ---
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.querySelectorAll('[data-js="logout"]').forEach(btn => btn.addEventListener('click', handleLogout));
             
-            // --- Step 7-10: N8N Workflow Execution (Simulated Wait) ---
-            for (let i = 7; i <= 9; i++) {
-                updateProgress(i, 'N8N Workflow is continuing data processing...');
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-
-            // Final step: Completion
-            updateProgress(10, 'Workflow Complete. Displaying result...');
-            setTimeout(() => navigateTo('completion', responseText), 500);
-
-        } catch (error) {
-            console.error('Error during webhook process:', error);
-            updateProgress(10, 'Error during webhook process.');
-            setTimeout(() => navigateTo('completion', `Error: ${error.message}`), 500);
-        }
-    }
-
-    /**
-     * Simpler trigger for existing folder or single file (mock only).
-     */
-    async function triggerExistingFileWorkflow() {
-        navigateTo('loading');
-
-        const progressBar = document.getElementById('progress-bar');
-        const progressText = document.getElementById('progress-text');
-        const statusMessage = document.getElementById('status-message');
-        
-        const file = fileList.length > 0 ? fileList[0] : { name: "N/A" };
-        const payload = {
-            action: "new_file_or_existing_folder_trigger",
-            mock_onedrive_file_name: file.name,
-            mock_existing_folder_id: MOCK_EXISTING_FOLDER_ID,
-            webhook_trigger_time: new Date().toISOString(),
-        };
-
-        updateProgress(5, 'Triggering N8N Workflow for Existing Folder/File...');
-
-        try {
-            const response = await fetch(WEBHOOK_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
+            document.querySelectorAll('[data-js="navigate"]').forEach(link => {
+                link.addEventListener('click', (e) => { 
+                    e.preventDefault(); 
+                    const pageId = link.getAttribute('href').substring(1) + '-page';
+                    showPage(pageId);
+                });
             });
 
-            if (!response.ok) {
-                 const errorText = await response.text();
-                 throw new Error(`HTTP error! Status: ${response.status}. Response: ${errorText.substring(0, 100)}...`);
-            }
-
-            const responseText = await response.text();
-            
-            // Simulate final steps
-            progressBar.style.width = '100%';
-            progressText.textContent = '100%';
-            statusMessage.textContent = 'Process finished.';
-            
-            setTimeout(() => navigateTo('completion', responseText), 500);
-
-        } catch (error) {
-            console.error('Error during webhook process:', error);
-            progressBar.style.width = '100%';
-            progressText.textContent = '100%';
-            statusMessage.textContent = 'Error during webhook process.';
-            setTimeout(() => navigateTo('completion', `Error: ${error.message}`), 500);
-        }
-
-        function updateProgress(step, message) {
-            const percentage = Math.min(100, step * 25);
-            progressBar.style.width = `${percentage}%`;
-            progressText.textContent = `${percentage}%`;
-            statusMessage.textContent = message;
-        }
-    }
-
-    // --- Main Renderer ---
-
-    function renderView(data = null) {
-        viewContainer.innerHTML = '';
-        let content = '';
-
-        switch (currentState) {
-            case 'home':
-                content = renderHomeView();
-                break;
-            case 'new_folder':
-                content = renderNewFolderView();
-                break;
-            case 'existing_file':
-                content = renderExistingFileView();
-                break;
-            case 'loading':
-                content = renderLoadingView();
-                break;
-            case 'completion':
-                content = renderCompletionView(data);
-                break;
-            default:
-                content = renderHomeView();
-        }
-        viewContainer.innerHTML = content;
-        updateThemeIcon(); // Ensure the theme icon is correct after rendering
-
-        // Reset file list on view change
-        if (currentState !== 'new_folder' && currentState !== 'existing_file') {
-            fileList = [];
-        }
-    }
-
-    // Initialize the application on load
-    document.addEventListener('DOMContentLoaded', () => {
-        // Use a persistent class check to decide the initial theme
-        currentTheme = body.classList.contains('dark') ? 'dark' : 'light'; 
-        renderView();
-    });
-
-</script>
+            // --- Initial Load ---
+            if (sessionStorage.getItem('isLoggedIn') === 'true') { showPage('landing-page'); } 
+            else { showPage('login-page'); }
+            updateThemeUI();
+        });
+    </script>
 </body>
 </html>
